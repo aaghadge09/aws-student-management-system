@@ -1,0 +1,1 @@
+Add genuine screenshots captured from your own AWS account and terminal. Do not submit these folders as evidence until populated. Suggested filenames and required captures are listed in the Word report and root README. Remove any account IDs, email addresses, or other details you do not want to share before submission.

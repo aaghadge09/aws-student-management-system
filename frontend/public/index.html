@@ -1,0 +1,5 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Management</title><link rel="stylesheet" href="/style.css"></head>
+<body><main class="shell"><header><div class="eyebrow">CAMPUS DIRECTORY</div><h1>Student Management</h1><p class="sub">A simple dashboard powered by Express and Flask.</p></header>
+<section class="panel"><h2>Add a student</h2><form id="student-form"><label>Name<input name="name" required placeholder="e.g. Sam Lee"></label><label>Email<input name="email" type="email" required placeholder="sam@example.com"></label><label>Course<input name="course" required placeholder="e.g. Data Science"></label><button>Add student</button></form><p id="message" role="status"></p></section>
+<section class="panel"><div class="row"><div><h2>Students</h2><p class="muted">Directory records</p></div><button id="refresh" class="secondary">Refresh</button></div><div id="students" class="students">Loading…</div></section><footer>Student Management System · Flask API + Express web</footer></main><script src="/script.js"></script></body></html>
