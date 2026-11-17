@@ -1,6 +1,6 @@
 Student: Aryan Ghadge
-GitHub repository: [ADD YOUR REAL REPOSITORY URL AFTER CREATING IT]
+GitHub repository: https://github.com/aaghadge09/aws-student-management-system (private)
 Task 1 deployed URL: [ADD REAL URL AFTER DEPLOYMENT]
 Task 2 deployed URL: [ADD REAL URL AFTER DEPLOYMENT]
 Task 3 deployed URL (ALB DNS): [ADD REAL URL AFTER DEPLOYMENT]
-Status: No AWS deployment or GitHub repository has been created by this package.
+Status: AWS deployments have not been created.
