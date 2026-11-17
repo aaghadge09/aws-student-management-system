@@ -21,6 +21,10 @@ npm start
 ```
 Open http://localhost:3000. API health check: http://localhost:5000/health. Or from project root run `docker compose up --build`, then open http://localhost:3000.
 
+## Local container verification
+
+On 2026-11-17, both images built with `docker compose build` and both services started with `docker compose up -d`. The web health endpoint returned `ok`; the API returned two sample students; a POST added a temporary student; DELETE removed it; and a final GET returned the original two records. This verifies the containers and Express proxy locally. It is not evidence of an AWS deployment.
+
 ## Features and limits
 List/add/delete students; Flask JSON endpoints; Express serves the UI and proxies `/api` requests. Data is stored in memory and resets on backend restart. This is a classroom demo, not a production system.
 
@@ -28,6 +32,7 @@ List/add/delete students; Flask JSON endpoints; Express serves the UI and proxie
 - [Single EC2](deployment/single-ec2/README.md)
 - [Separate EC2](deployment/separate-ec2/README.md)
 - [ECR, ECS Fargate, VPC](deployment/ecs/README.md)
+- [ECS Fargate task definition files](deployment/ecs/task-definitions/README.md)
 
 Follow one deployment at a time. Capture terminal output and AWS console evidence as you go. Never publish credentials or private keys. Restrict SSH to your IP and backend traffic to the frontend security group. AWS charges may apply; stop/delete resources after capture and verify billing.
 

@@ -1,0 +1,32 @@
+{
+  "family": "student-web",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "REPLACE_WITH_ECS_TASK_EXECUTION_ROLE_ARN",
+  "runtimePlatform": {
+    "operatingSystemFamily": "LINUX",
+    "cpuArchitecture": "X86_64"
+  },
+  "containerDefinitions": [
+    {
+      "name": "student-web",
+      "image": "REPLACE_WITH_ECR_FRONTEND_IMAGE_URI",
+      "essential": true,
+      "portMappings": [{"containerPort": 3000, "protocol": "tcp"}],
+      "environment": [
+        {"name": "PORT", "value": "3000"},
+        {"name": "API_URL", "value": "http://student-api.student.local:5000"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/student-management",
+          "awslogs-region": "REPLACE_WITH_AWS_REGION",
+          "awslogs-stream-prefix": "web"
+        }
+      }
+    }
+  ]
+}
