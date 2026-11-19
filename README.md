@@ -1,6 +1,6 @@
 # Student Management System on AWS
 
-A beginner-friendly Flask JSON API and Express web dashboard for the three deployment configurations in the assignment. This repository is a **project starter and deployment guide**. It does not claim any AWS deployment, screenshots, URL, or GitHub repository exists yet.
+A beginner-friendly Flask JSON API and Express web dashboard for the three deployment configurations in the assignment. The backend and frontend Dockerfiles are included. Local container behavior and ECR image publishing have been verified; the EC2 and ECS services have not yet been deployed.
 
 ## Run locally
 Requirements: Python 3.10+ and Node.js 18+ (Docker Compose is an alternative).
@@ -33,12 +33,19 @@ List/add/delete students; Flask JSON endpoints; Express serves the UI and proxie
 - [Separate EC2](deployment/separate-ec2/README.md)
 - [ECR, ECS Fargate, VPC](deployment/ecs/README.md)
 - [ECS Fargate task definition files](deployment/ecs/task-definitions/README.md)
+- [CloudFormation deployment templates](deployment/cloudformation/)
 
-Follow one deployment at a time. Capture terminal output and AWS console evidence as you go. Never publish credentials or private keys. Restrict SSH to your IP and backend traffic to the frontend security group. AWS charges may apply; stop/delete resources after capture and verify billing.
+## Verified AWS status
+
+On 2026-11-17, images tagged `latest` were built and pushed to the `student-backend` and `student-frontend` ECR repositories in `ap-southeast-2`. No EC2 instances, ECS services, application load balancer, or assignment VPC have been provisioned. There are no live application URLs or AWS deployment screenshots in this package. ECR image upload alone does not complete the assignment.
+
+The local container verification on 2026-11-17 confirmed the frontend health endpoint, student list, POST, DELETE, and final list through the Express proxy. It is local evidence only. See `AWS_Deployment_Report.docx` for the current truthful status and the remaining hands-on requirements.
+
+Follow one deployment at a time. Capture terminal output and AWS console evidence as you go. Never publish credentials or private keys. Restrict SSH to your IP and backend traffic to the frontend security group. AWS charges may apply; delete resources after capture and verify billing.
 
 ## Submission checklist
-1. Complete deployments and populate `screenshots/task1`, `task2`, and `task3` with real captures.
-2. Update `deployment-links.txt` with the real repository and app URLs; ensure URLs point to the deployed app you tested.
-3. Fill in `AWS_Deployment_Report.docx`, replacing every bracketed prompt and inserting genuine screenshots.
-4. Check the final folder, then zip the entire `AWS_Aryan_Ghadge` folder as `AWS_Aryan_Ghadge.zip`.
-5. Keep the ZIP as the one portal upload. A stopped EC2 public IP may no longer work; capture URL before stopping and use an Elastic IP only if you understand its possible cost.
+1. Deploy all three configurations and populate `screenshots/task1`, `task2`, and `task3` with genuine captures.
+2. Update `deployment-links.txt` with the tested app URLs.
+3. Update the report with actual deployment results and insert genuine screenshots.
+4. Verify cleanup and cost status, then zip the entire `AWS_Aryan_Ghadge` folder as `AWS_Aryan_Ghadge.zip`.
+5. Submit the ZIP only after those items are complete. The package currently documents code and verified image publishing, but is not a complete assignment submission.

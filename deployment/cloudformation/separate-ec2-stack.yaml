@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Express frontend EC2 and private Flask backend EC2
+Parameters:
+  VpcId: {Type: AWS::EC2::VPC::Id}
+  PublicSubnetId: {Type: AWS::EC2::Subnet::Id}
+  PrivateSubnetId: {Type: AWS::EC2::Subnet::Id}
+  AmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+Resources:
+  BackendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Flask is reachable only from the frontend security group
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - {IpProtocol: -1, CidrIp: 0.0.0.0/0}
+      Tags: [{Key: Name, Value: student-backend-private-sg}]
+  FrontendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Public Express port; no SSH access
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - {IpProtocol: tcp, FromPort: 3000, ToPort: 3000, CidrIp: 0.0.0.0/0}
+      SecurityGroupEgress:
+        - {IpProtocol: -1, CidrIp: 0.0.0.0/0}
+      Tags: [{Key: Name, Value: student-frontend-public-sg}]
+  BackendIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref BackendSecurityGroup
+      IpProtocol: tcp
+      FromPort: 5000
+      ToPort: 5000
+      SourceSecurityGroupId: !Ref FrontendSecurityGroup
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: t3.micro
+      SubnetId: !Ref PrivateSubnetId
+      SecurityGroupIds: [!Ref BackendSecurityGroup]
+      MetadataOptions: {HttpTokens: required}
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs: {VolumeSize: 8, VolumeType: gp3, DeleteOnTermination: true}
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          exec > >(tee -a /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -y
+          apt-get install -y python3-venv python3-pip git
+          git clone https://github.com/aaghadge09/aws-student-management-system.git /opt/student
+          python3 -m venv /opt/student/.venv
+          /opt/student/.venv/bin/pip install -r /opt/student/backend/requirements.txt
+          cat > /etc/systemd/system/student-api.service <<'UNIT'
+          [Unit]
+          Description=Student Flask API
+          After=network-online.target
+          [Service]
+          WorkingDirectory=/opt/student/backend
+          ExecStart=/opt/student/.venv/bin/gunicorn --bind 0.0.0.0:5000 app:app
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+          UNIT
+          systemctl daemon-reload
+          systemctl enable --now student-api
+      Tags: [{Key: Name, Value: student-backend-private-ec2}]
+  FrontendInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: BackendInstance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: t3.micro
+      SubnetId: !Ref PublicSubnetId
+      SecurityGroupIds: [!Ref FrontendSecurityGroup]
+      MetadataOptions: {HttpTokens: required}
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs: {VolumeSize: 8, VolumeType: gp3, DeleteOnTermination: true}
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          exec > >(tee -a /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -y
+          apt-get install -y git nodejs npm
+          git clone https://github.com/aaghadge09/aws-student-management-system.git /opt/student
+          cd /opt/student/frontend
+          npm install --omit=dev
+          cat > /etc/systemd/system/student-web.service <<'UNIT'
+          [Unit]
+          Description=Student Express frontend
+          After=network-online.target
+          [Service]
+          WorkingDirectory=/opt/student/frontend
+          Environment=PORT=3000
+          Environment=API_URL=http://${BackendInstance.PrivateIp}:5000
+          ExecStart=/usr/bin/npm start
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+          UNIT
+          systemctl daemon-reload
+          systemctl enable --now student-web
+      Tags: [{Key: Name, Value: student-frontend-public-ec2}]
+Outputs:
+  FrontendInstanceId: {Value: !Ref FrontendInstance}
+  BackendInstanceId: {Value: !Ref BackendInstance}
+  BackendPrivateIp: {Value: !GetAtt BackendInstance.PrivateIp}
+  AppUrl: {Value: !Sub 'http://${FrontendInstance.PublicDnsName}:3000'}
